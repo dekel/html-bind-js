@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>HTML Bind JS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+  </head>
+
+  <body>
+    <h1>HTML Bind JS</h1>
+    <h2>Bind data to multiple HTML elements</h2>
+    <h3>by Daniel Dekel</h3>
+
+    <button onclick="updateData()">1) Show Data</button>
+    <button onclick="updateData2()">2) Change one data item</button>
+    <button onclick="updateData3()">3) Change all data</button>
+    <button onclick="updateData4()">4) Change Array</button>
+    <button onclick="updateData5()">5) Test Large data</button>
+    <h3 hb-bind-text="my-object:title"></h3>
+    <div>
+      <small hb-bind-text="my-object:date"></small>
+    </div>
+    <p hb-bind-text="my-object:description"></p>
+    <div>
+      <input type="text" hb-bind-value="my-object:title" />
+    </div>
+    <div>
+      <label>Each:</label>
+      <ul>
+        <template hb-data-each="my-object:items" hb-data-as="item">
+          <li hb-bind-text="item.name">default data</li>
+        </template>
+      </ul>
+    </div>
+
+    <div>
+      <label>IF:</label>
+      <template hb-if="my-object:isDisplayTitle">
+        Shows only if the title is:
+        <span hb-bind-text="my-object:title">default data</span>
+      </template>
+    </div>
+
+    <code hb-bind-text="my-object"></code>
+
+    <script type="module">
+      import HtmlBindJs from "./html-bind.js";
+
+      const myData = {
+        title: "My Title",
+        date: "1/09/2020",
+        description: "Some description for my data",
+        items: [
+          { name: "Item One" },
+          { name: "Item Two" },
+          { name: "Item Tree" },
+        ],
+      };
+
+      myData.isDisplayTitle = function () {
+        return this.title === "My Title Updated";
+      };
+
+      window.htmlBindJs.attributePrefix = "hb";
+      let HtmlBindJsInst = new HtmlBindJs({
+        key: "my-object",
+        data: myData,
+        process: false,
+      });
+
+      window.HtmlBindJsInst = HtmlBindJsInst;
+
+      window.updateData = function () {
+        HtmlBindJsInst.update();
+      };
+
+      window.updateData2 = function () {
+        // make a change to the object:
+        myData.title = "My Title Updated";
+
+        // Fire the update event to updte the DOM:
+        HtmlBindJsInst.update({ key: "my-object", path: "title" });
+      };
+
+      window.updateData3 = function () {
+        // make a change to the object:
+        myData.title = myData.title + " 2";
+        myData.date = new Date();
+        myData.description = myData.description + " 2";
+
+        // Fire the update event to updte the DOM:
+        HtmlBindJsInst.update({ key: "my-object" });
+      };
+
+      window.updateData4 = function () {
+        // Update item n array:
+        myData.items[0].name = "Item One Updated";
+
+        // Add item to Array:
+        myData.items.push({ name: "Item Added" });
+
+        // Fire the update event to updte the DOM:
+        HtmlBindJsInst.update({ key: "my-object" });
+      };
+
+      /**
+       * Test Large Data:
+       */
+      window.updateData5 = function () {
+        // Reset Array:
+        myData.items.length = 0;
+
+        // Add 10000 items to Array:
+        for (let i = 0; i < 1000; i++) {
+          myData.items.push({ name: `Item Added ${i}` });
+        }
+
+        if (HtmlBindJsInst) {
+          HtmlBindJsInst.unregister();
+        }
+
+        HtmlBindJsInst = new HtmlBindJs({
+          key: "my-object",
+          data: myData,
+          process: false,
+        });
+
+        // Record Time:
+        const startTime = Date.now();
+        console.log(
+          `Start Renderering ${myData.items.length} records. at : ${startTime}`
+        );
+
+        // Fire the update event to updte the DOM:
+        HtmlBindJsInst.update();
+        const endTime = Date.now();
+        console.log(
+          `Finished Renderering. at ${endTime} Time taken: ${
+            endTime - startTime
+          }ms`
+        );
+      };
+    </script>
+  </body>
+</html>
