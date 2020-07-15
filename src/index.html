@@ -15,32 +15,32 @@
     <button onclick="updateData3()">3) Change all data</button>
     <button onclick="updateData4()">4) Change Array</button>
     <button onclick="updateData5()">5) Test Large data</button>
-    <h3 hb-bind-text="my-object:title"></h3>
+    <h3 dk-bind-text="my-object:title"></h3>
     <div>
-      <small hb-bind-text="my-object:date"></small>
+      <small dk-bind-text="my-object:date"></small>
     </div>
-    <p hb-bind-text="my-object:description"></p>
+    <p dk-bind-text="my-object:description"></p>
     <div>
-      <input type="text" hb-bind-value="my-object:title" />
+      <input type="text" dk-bind-value="my-object:title" />
     </div>
     <div>
       <label>Each:</label>
       <ul>
-        <template hb-data-each="my-object:items" hb-data-as="item">
-          <li hb-bind-text="item.name">default data</li>
+        <template dk-data-each="my-object:items" dk-data-as="item">
+          <li dk-bind-text="item.name">default data</li>
         </template>
       </ul>
     </div>
 
     <div>
       <label>IF:</label>
-      <template hb-if="my-object:isDisplayTitle">
+      <template dk-if="my-object:isDisplayTitle">
         Shows only if the title is:
-        <span hb-bind-text="my-object:title">default data</span>
+        <span dk-bind-text="my-object:title">default data</span>
       </template>
     </div>
 
-    <code hb-bind-text="my-object"></code>
+    <code dk-bind-text="my-object"></code>
 
     <script type="module">
       import HtmlBindJs from "./html-bind.js";
@@ -60,7 +60,7 @@
         return this.title === "My Title Updated";
       };
 
-      window.htmlBindJs.attributePrefix = "hb";
+      // window.htmlBindJs.attributePrefix = "hb";
       let HtmlBindJsInst = new HtmlBindJs({
         key: "my-object",
         data: myData,

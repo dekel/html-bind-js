@@ -1,6 +1,6 @@
 if (window && !window.htmlBindJs) {
   window.htmlBindJs = {
-    attributePrefix: "trs",
+    attributePrefix: "dk",
     bindObjects: {},
   };
 }
