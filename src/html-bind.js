@@ -1,3 +1,6 @@
+/**
+ * Add static namespace to store the unique keys and some global properties
+ */
 if (window && !window.htmlBindJs) {
   window.htmlBindJs = {
     attributePrefix: "dk",
@@ -5,6 +8,9 @@ if (window && !window.htmlBindJs) {
   };
 }
 
+/**
+ * The main class
+ */
 class HtmlBindJs {
   constructor({ key, data, parentElem, process } = {}) {
     // this.useStrongHash = false;
@@ -25,7 +31,7 @@ class HtmlBindJs {
 
   /**
    * Register the key against the bind object
-   * @param {*} param0
+   * @param {object} config - key, data, parentElem
    */
   register({ key, data, parentElem, process }) {
     if (this.hbBindObjects[key]) {
@@ -41,15 +47,21 @@ class HtmlBindJs {
     }
   }
 
+  /**
+   * Unregister a key
+   */
   unregister() {
     if (this.hbBindObjects[this.key]) {
       delete this.hbBindObjects[this.key];
     }
   }
 
+  /**
+   * Declare there has been an update in the object
+   * This method re-renders the HTML
+   * @param {object} config
+   */
   update({ key = this.key, parentElem = this.parentElem, data } = {}) {
-    // key = key || this.key;
-
     this.updateBind({ key, parentElem, data });
     this.updateEach({ key, parentElem, data });
     this.updateIf({ key, parentElem, data });
@@ -112,7 +124,6 @@ class HtmlBindJs {
     const elems = parentElem.querySelectorAll(`[${this.attributes.DATA_EACH}]`),
       elemsLength = elems.length;
 
-    // elems.forEach((elem) => {
     for (let i = 0; i < elemsLength; i++) {
       const elem = elems[i];
       let dataBind;
@@ -286,6 +297,8 @@ class HtmlBindJs {
       } else {
         parentElem.appendChild(repeatedElem);
       }
+    } else {
+      currentElem.hbProcessId = processId;
     }
 
     // console.log("INNER FOR-" + arrayItemIndex);
