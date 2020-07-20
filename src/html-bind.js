@@ -202,7 +202,8 @@ class HtmlBindJs {
 
       // const ifFnName = this.getValueFromObject(key, dataBindObjKey, data);
       const ifFnName = ifBindData.substr(key.length + 1);
-      const ifFn = _.get(data[key], ifFnName);
+      const ifFn = this.getProp(data[key], ifFnName);
+      // const ifFn = _.get(data[key], ifFnName);
 
       if (!ifFn) {
         return;
@@ -329,7 +330,8 @@ class HtmlBindJs {
       val = JSON.stringify(data[key]);
     } else {
       const dataBindPath = dataBind.substr(key.length + 1);
-      val = _.get(data[key], dataBindPath);
+      val = this.getProp(data[key], dataBindPath);
+      // val = _.get(data[key], dataBindPath);
     }
     return val;
   }
@@ -375,6 +377,30 @@ class HtmlBindJs {
 
     return h;
     // }
+  }
+
+  /**
+   * Gets the value at `path` of `object`.
+   * Code taken from: https://gist.github.com/harish2704/d0ee530e6ee75bad6fd30c98e5ad9dab
+   * @param {Object} object
+   * @param {string|Array} path
+   * @returns {*} value if exists else undefined
+   */
+  getProp(object, path, defaultVal) {
+    const PATH = Array.isArray(path)
+      ? path
+      : path.split(".").filter((i) => i.length);
+    if (!PATH.length) {
+      return object === undefined ? defaultVal : object;
+    }
+    if (
+      object === null ||
+      object === undefined ||
+      typeof object[PATH[0]] === "undefined"
+    ) {
+      return defaultVal;
+    }
+    return this.getProp(object[PATH.shift()], PATH, defaultVal);
   }
 
   getObjectHash(obj) {

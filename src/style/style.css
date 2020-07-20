@@ -1,0 +1,68 @@
+body {
+  --bg-col-1: rgb(207, 220, 207);
+  --bg-col-2: rgb(187, 208, 188);
+  --bg-color-input: rgb(219, 226, 219);
+  --text-color: rgb(27, 68, 28);
+  --button-bg-color: rgb(27, 68, 28);
+  --button-color: rgb(207, 220, 207);
+  --button-focus-color: rgb(207, 220, 207);
+  --button-focus-bg-color: rgb(58, 109, 59);
+  --form-components-height: 30px;
+
+  background: var(--bg-col-1);
+  background: linear-gradient(
+    90deg,
+    var(--bg-col-1) 0%,
+    var(--bg-col-1) 46%,
+    var(--bg-col-2) 100%
+  );
+  color: var(--text-color);
+}
+html,
+button,
+input {
+  font-family: Cambria, Georgia, "Times New Roman", Times, serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  font-size: 18px;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+input,
+button {
+  font-size: inherit;
+}
+button {
+  border: none;
+  outline: none;
+  background-color: var(--button-bg-color);
+  color: var(--button-color);
+  margin: 0px 5px;
+  text-align: center;
+  line-height: 32px;
+  border-radius: 4px;
+}
+button:first-of-type {
+  margin-left: 0;
+}
+
+button:active {
+  color: var(--button-focus-color);
+  background: var(--button-focus-bg-color);
+}
+
+.container {
+  width: 970px;
+  margin: 0 auto;
+}
+h1,
+h2 {
+  background-color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+input {
+  height: var(--form-components-height);
+}
