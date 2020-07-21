@@ -4,7 +4,7 @@
   "description": "A small JavaScript module that allows binding an object to the html",
   "main": "html-bind.js",
   "scripts": {
-    "build": "npm run build.js"
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",
