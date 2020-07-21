@@ -1,0 +1,27 @@
+{
+  "name": "html-bind",
+  "version": "0.0.1",
+  "description": "A small JavaScript module that allows binding an object to the html",
+  "main": "html-bind.js",
+  "scripts": {
+    "build": "npm run build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dekel/html-bind-js.git"
+  },
+  "keywords": [
+    "js",
+    "html",
+    "bind"
+  ],
+  "author": "Daniel Dekel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dekel/html-bind-js/issues"
+  },
+  "homepage": "https://github.com/dekel/html-bind-js#readme",
+  "dependencies": {
+    "uglify-es": "^3.3.9"
+  }
+}
