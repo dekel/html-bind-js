@@ -13,7 +13,7 @@ This project is still in early stages but you can test some of the functionality
 Your HTML:
 
 ```html
-<h1 dk-bind-text="my-object:title"></h1>
+<h1 dk-bind="text:my-object>title"></h1>
 ```
 
 Your JavaScript:
@@ -43,42 +43,55 @@ HtmlBindJsInst.update();
 
 ## More Options
 
-### Directives:
+### DOM Methods:
 
-_dk-bind-text_ - Bind Text:
+In the DOM, there is one attribute that references the binding method - _dk-bind_.
+
+The value in that attribute starts with the method separated with a colon symbol (:).
+
+Multiple DOM methods can de attached to the same DOM element in the same attribute, you just need to separate these by a semicolon.
+
+`<ELEMENT dk-bind="function1:value; function2:value">`
+
+It is common that some of the functions will accept the key representing the object to bind to. After that key comes the path to the property you want to bind to. That can be written as `KEY>THE_PATH` (see the first text function example)
+
+#### text - Injects a text to the current element
 
 ```html
-<h1 dk-bind-text="my-object:title"></h1>
+<h1 dk-bind="text:my-object>title"></h1>
 ```
 
-_dk-bind-value_ - Bind to Input Value:
+#### value - Updates the value of the current element
 
 ```html
-<input type="text" dk-bind-value="my-object:title" />
+<input type="text" dk-bind="value:my-object>title" />
 ```
 
-_dk-data-each_ - Bind to An Array:
+#### each - Bind to An Array:
 
 The repeated HTML code has to be defined in a _template_ element.
 
+The item being iterated is named as part of the `in` statement in the each method: `item in items`.
+
 ```html
 <ul>
-  <template dk-data-each="my-object:items" dk-data-as="item">
-    <li dk-bind-text="item.name">default data</li>
+  <template dk-bind="each:my-object>item in items">
+    <li dk-bind="text:item.name">default data</li>
   </template>
 </ul>
 ```
 
-_dk-if_ - Bind to a function
+#### if - Bind to a function
+
 The _function_ returns boolean - True will display the HTML element.
 The _function_ has to be in the scope of the data object.
 
 The conditional HTML code has to be defined in a _template_ element.
 
 ```html
-<template dk-if="my-object:isDisplayTitle">
+<template dk-bind="if:my-object>isDisplayTitle">
   Shows only if the title is:
-  <span dk-bind-text="my-object:title">default data</span>
+  <span dk-bind="text:my-object>title">default data</span>
 </template>
 ```
 

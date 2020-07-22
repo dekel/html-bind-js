@@ -16,12 +16,24 @@ class HtmlBindJs {
     // this.useStrongHash = false;
     this.hbBindObjects = window.htmlBindJs.bindObjects;
     this.attributePrefix = window.htmlBindJs.attributePrefix;
+    this.attribBindsSeparator = ";";
+    this.attribBindDirectiveSeparator = ":";
+    this.attribBindDirectiveKeySeparator = ">";
     this.attributes = {
-      BIND_TEXT: this.attributePrefix + "-bind-text",
-      BIND_VALUE: this.attributePrefix + "-bind-value",
-      DATA_EACH: this.attributePrefix + "-data-each",
-      IF: this.attributePrefix + "-if",
-      DATA_AS: this.attributePrefix + "-data-as",
+      BIND: this.attributePrefix + "-bind",
+      BIND_TEXT: "text",
+      BIND_VALUE: "value",
+      DATA_EACH: "each",
+      DATA_AS: "each-as",
+      IF: "if",
+    };
+
+    this.directives = {
+      text: { fn: this.updateText },
+      value: { fn: this.updateValue },
+      each: { fn: this.updateEach },
+      // "each-as": { fn: this.updateEach},
+      if: { fn: this.updateIf },
     };
 
     if (key) {
@@ -62,146 +74,171 @@ class HtmlBindJs {
    * @param {object} config
    */
   update({ key = this.key, parentElem = this.parentElem, data } = {}) {
-    this.updateBind({ key, parentElem, data });
-    this.updateEach({ key, parentElem, data });
-    this.updateIf({ key, parentElem, data });
-  }
+    const bindElements = parentElem.querySelectorAll(
+        `[${this.attributes.BIND}]`
+      ),
+      bindElementsLength = bindElements.length;
 
-  updateBind({ key, parentElem = document, data }) {
-    const elems = parentElem.querySelectorAll(
-      `[${this.attributes.BIND_TEXT}],[${this.attributes.BIND_VALUE}]`
-    );
-    const elemsLength = elems.length;
-    for (let i = 0; i < elemsLength; i++) {
-      const elem = elems[i];
-      this.updateBindElem({ key, parentElem: elem, data });
+    // Each Element:
+    for (let elemIndex = 0; elemIndex < bindElementsLength; elemIndex++) {
+      const elem = bindElements[elemIndex];
+      this.updateElement({ key, elem, data });
     }
-    this.updateBindElem({ key, parentElem, data });
+
+    this.updateElement({ key, elem: parentElem, data });
   }
 
-  updateBindElem({ key, parentElem, data }) {
+  updateElement({ key, elem, data }) {
+    const attrib = elem.getAttribute && elem.getAttribute(this.attributes.BIND);
+    if (!attrib) return;
+
+    const binds = attrib.split(this.attribBindsSeparator);
+
+    // Each Bind:
+    const bindsLength = binds.length;
+    for (let bindIndex = 0; bindIndex < bindsLength; bindIndex++) {
+      const bind = binds[bindIndex];
+      if (!bind) continue;
+      const bindItems = bind.split(this.attribBindDirectiveSeparator);
+      const bindDirective = bindItems[0].trim();
+      const bindDirectiveDetails = bindItems[1].trim();
+      if (bindDirective && this.directives[bindDirective]) {
+        this.directives[bindDirective].fn.call(this, {
+          key: key,
+          data: data,
+          directive: bindDirective,
+          details: bindDirectiveDetails,
+          parentElem: elem,
+          bindItems: bindItems,
+        });
+      }
+    }
+  }
+
+  updateText({
+    key,
+    parentElem = document,
+    data,
+    directive,
+    details,
+    bindItems,
+  }) {
+    if (!data) {
+      data = this.hbBindObjects;
+    }
+
+    const dataBindObjKey = details.substr(0, key.length);
+    if (dataBindObjKey !== key || !data[key]) {
+      return;
+    }
+
+    let val = this.getValueFromObject(key, details, data);
+    this.updateTextElement.call(this, parentElem, val);
+  }
+
+  updateValue({
+    key,
+    parentElem = document,
+    data,
+    directive,
+    details,
+    bindItems,
+  }) {
+    if (!data) {
+      data = this.hbBindObjects;
+    }
+    const dataBindObjKey = details.substr(0, key.length);
+    if (dataBindObjKey !== key || !data[key]) {
+      return;
+    }
+
+    let val = this.getValueFromObject(key, details, data);
+    this.updateValueElement.call(this, parentElem, val);
+  }
+
+  updateEach({
+    key,
+    parentElem = document,
+    data,
+    directive,
+    details,
+    bindItems,
+  }) {
+    const elem = parentElem;
     let dataBind;
+    if (data) {
+      dataBind = data;
+    } else {
+      data = this.hbBindObjects;
+      dataBind = details;
+      let dataBindObjKey = dataBind.substr(0, key.length);
+      if (dataBindObjKey !== key || !this.hbBindObjects[key]) {
+        return;
+      }
+    }
+
+    // Parse For..in :
+    const detailsSplit = dataBind.substr(key.length + 1);
+    const detailsSplitArr = detailsSplit.split("in");
+    if (!detailsSplitArr.length || detailsSplitArr.length !== 2) return;
+
+    const inAttrib = detailsSplitArr[0].trim();
+    const arrayVal = this.getProp(data[key], detailsSplitArr[1].trim());
+
+    const parentParentElem = elem.parentNode;
+
+    // Get inside the template:
+    const elemContent = elem.content.firstElementChild;
+
+    // Remove Temporarilly the Template Node:
+    parentParentElem.removeChild(elem);
+
+    const processId = Math.random() * 4;
+    const arrayValLength = arrayVal.length;
+    for (let j = 0; j < arrayValLength; j++) {
+      this.updateForEachChild({
+        arrayItemData: arrayVal[j],
+        arrayItemIndex: j,
+        elemContent,
+        asAttrib: inAttrib,
+        parentElem: parentParentElem,
+        processId: processId,
+      });
+      // console.log("FOR-" + j);
+    }
+
+    // console.log("FOR FINISHED");
+
+    // remove elements that are not part of the process:
+    this.removeChildren(parentParentElem, processId);
+
+    parentParentElem.appendChild(elem);
+  }
+
+  updateIf({
+    key,
+    parentElem = document,
+    data,
+    directive,
+    details,
+    bindItems,
+  }) {
     if (!data) {
       data = this.hbBindObjects;
     }
     if (parentElem.getAttribute) {
       const bindAttribs = [];
-      const textBindData = parentElem.getAttribute(this.attributes.BIND_TEXT);
-      const valueBindData = parentElem.getAttribute(this.attributes.BIND_VALUE);
+      // const details = parentElem.getAttribute(this.attributes.IF);
 
-      textBindData &&
-        bindAttribs.push({
-          attr: this.attributes.BIND_TEXT,
-          dataBind: textBindData,
-          updateFn: this.updateTextElement,
-        });
-      valueBindData &&
-        bindAttribs.push({
-          attr: this.attributes.BIND_VALUE,
-          dataBind: valueBindData,
-          updateFn: this.updateValueElement,
-        });
+      if (!details) return;
 
-      // .forEach((item) => {
-      for (
-        let i = 0, bindAttribsLength = bindAttribs.length;
-        i < bindAttribsLength;
-        i++
-      ) {
-        const item = bindAttribs[i];
-        const dataBindObjKey = item.dataBind.substr(0, key.length);
-        if (dataBindObjKey !== key || !data[key]) {
-          return;
-        }
-
-        let val = this.getValueFromObject(key, item.dataBind, data);
-        item.updateFn.call(this, parentElem, val);
-      }
-    }
-  }
-
-  updateEach({ key, parentElem = document, data }) {
-    const elems = parentElem.querySelectorAll(`[${this.attributes.DATA_EACH}]`),
-      elemsLength = elems.length;
-
-    for (let i = 0; i < elemsLength; i++) {
-      const elem = elems[i];
-      let dataBind;
-      if (data) {
-        dataBind = data;
-      } else {
-        dataBind = elem.getAttribute(this.attributes.DATA_EACH);
-        let dataBindObjKey = dataBind.substr(0, key.length);
-        if (dataBindObjKey !== key || !this.hbBindObjects[key]) {
-          return;
-        }
-      }
-
-      const asAttrib = elem.getAttribute(this.attributes.DATA_AS);
-      const arrayVal = this.getValueFromObject(key, dataBind);
-      const parentElem = elem.parentNode;
-
-      // Remove current children:
-      // const childrenToRemove = elem.querySelectorAll(".__hb-repeat-class__");
-
-      // this.removeChildren(parentElem);
-
-      // Get inside the template:
-      const elemContent = elem.content.firstElementChild;
-
-      // Remove Temporarilly the Template Node:
-      parentElem.removeChild(elem);
-
-      const processId = Math.random() * 4;
-      const arrayValLength = arrayVal.length;
-      for (let j = 0; j < arrayValLength; j++) {
-        this.updateForEachChild({
-          arrayItemData: arrayVal[j],
-          arrayItemIndex: j,
-          elemContent,
-          asAttrib,
-          parentElem,
-          processId: processId,
-        });
-        // console.log("FOR-" + j);
-      }
-
-      // console.log("FOR FINISHED");
-
-      // remove elements that are not part of the process:
-      this.removeChildren(parentElem, processId);
-
-      parentElem.appendChild(elem);
-    }
-  }
-
-  updateIf({ key, parentElem = document, data }) {
-    const elems = parentElem.querySelectorAll(`[${this.attributes.IF}]`);
-    const elemsLength = elems.length;
-    for (let i = 0; i < elemsLength; i++) {
-      const elem = elems[i];
-      this.updateIfElem({ key, parentElem: elem, data });
-    }
-    this.updateIfElem({ key, parentElem, data });
-  }
-
-  updateIfElem({ key, parentElem, data }) {
-    if (!data) {
-      data = this.hbBindObjects;
-    }
-    if (parentElem.getAttribute) {
-      const bindAttribs = [];
-      const ifBindData = parentElem.getAttribute(this.attributes.IF);
-
-      if (!ifBindData) return;
-
-      const dataBindObjKey = ifBindData.substr(0, key.length);
+      const dataBindObjKey = details.substr(0, key.length);
       if (dataBindObjKey !== key || !data[key]) {
         return;
       }
 
       // const ifFnName = this.getValueFromObject(key, dataBindObjKey, data);
-      const ifFnName = ifBindData.substr(key.length + 1);
+      const ifFnName = details.substr(key.length + 1);
       const ifFn = this.getProp(data[key], ifFnName);
       // const ifFn = _.get(data[key], ifFnName);
 
@@ -214,7 +251,7 @@ class HtmlBindJs {
       const parentParentElem = parentElem.parentElement;
 
       // Element Unique ID
-      const elemUniqueId = `__${ifBindData}__`;
+      const elemUniqueId = `__${details}__`;
 
       // Find if element is already rendered:
       let renderedElem = parentParentElem.querySelector(
