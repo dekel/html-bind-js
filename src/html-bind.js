@@ -369,8 +369,7 @@ class HtmlBindJs {
       val = JSON.stringify(data[key]);
     } else {
       const dataBindPath = dataBind.substr(key.length + 1);
-      val = this.getProp(data[key], dataBindPath);
-      // val = _.get(data[key], dataBindPath);
+      val = this.getProp(data[key], dataBindPath, "");
     }
     return val;
   }
