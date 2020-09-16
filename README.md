@@ -100,3 +100,27 @@ myData.isDisplayTitle = function () {
   return this.title === "My Title Updated";
 };
 ```
+
+## Style Options
+If you include the _html-bind.css_ file you can have the following effects:
+
+### Loading content element indicator
+
+When configuring the instance of _HtmlBindJs_ add the property _useLoadingStyle:true_
+```js
+let HtmlBindJsInst = new HtmlBindJs({
+  key: "my-object",
+  data: myData,
+  process: true,
+  useLoadingStyle: true
+});
+```
+and in the HTML element add the class _dk-no-data-loaded_ 
+
+```html
+<span dk-bind="text:my-object>title" class="dk-no-data-loaded">default data</span>
+```
+
+That class will be removed once the data is loaded.
+The style can be changed by overwriting the following selector: ``` [dk-bind].dk-no-data-loaded:before```
+

@@ -12,6 +12,9 @@ const DIST_FOLDER = "./dist";
 
 uglifyProject();
 
+copyCSS();
+
+
 function uglifyProject() {
   const file1 = fs.readFileSync(SRC_FOLDER + "/html-bind.js", {
     encoding: "utf-8",
@@ -62,6 +65,15 @@ ${homepageURL}
   fs.writeFileSync(DIST_FOLDER + "/html-bind.js.map", result.map, {
     encoding: "utf-8",
   });
+
+}
+
+function copyCSS() {
+  fs.copyFileSync(SRC_FOLDER + "/html-bind.css", DIST_FOLDER + "/html-bind.css");
+
+  // {
+  //   encoding: "utf-8",
+  // });
 }
 
 function getAppName() {

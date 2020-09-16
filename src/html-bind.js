@@ -12,13 +12,14 @@ if (window && !window.htmlBindJs) {
  * The main class
  */
 class HtmlBindJs {
-  constructor({ key, data, parentElem, process } = {}) {
+  constructor({ key, data, parentElem, process, useLoadingStyle } = {}) {
     // this.useStrongHash = false;
     this.hbBindObjects = window.htmlBindJs.bindObjects;
     this.attributePrefix = window.htmlBindJs.attributePrefix;
     this.attribBindsSeparator = ";";
     this.attribBindDirectiveSeparator = ":";
     this.attribBindDirectiveKeySeparator = ">";
+    this.useLoadingStyle = useLoadingStyle;
     this.attributes = {
       BIND: this.attributePrefix + "-bind",
       BIND_TEXT: "text",
@@ -27,6 +28,7 @@ class HtmlBindJs {
       DATA_AS: "each-as",
       IF: "if",
     };
+    this.noDataLoadedClassName = "dk-no-data-loaded"
 
     this.directives = {
       text: { fn: this.updateText },
@@ -75,8 +77,8 @@ class HtmlBindJs {
    */
   update({ key = this.key, parentElem = this.parentElem, data } = {}) {
     const bindElements = parentElem.querySelectorAll(
-        `[${this.attributes.BIND}]`
-      ),
+      `[${this.attributes.BIND}]`
+    ),
       bindElementsLength = bindElements.length;
 
     // Each Element:
@@ -378,6 +380,10 @@ class HtmlBindJs {
     if ((elem.hbHash && elem.hbHash !== valHash) || !elem.hbHash) {
       elem.innerText = val || "";
       elem.hbHash = valHash;
+
+      if (this.useLoadingStyle) {
+        elem.classList.remove(this.noDataLoadedClassName);
+      }
     }
   }
 
