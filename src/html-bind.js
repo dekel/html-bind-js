@@ -185,7 +185,7 @@ class HtmlBindJs {
     if (!detailsSplitArr.length || detailsSplitArr.length !== 2) return;
 
     const inAttrib = detailsSplitArr[0].trim();
-    const arrayVal = this.getProp(data[key], detailsSplitArr[1].trim());
+    const arrayVal = this.getProp(data[key], detailsSplitArr[1].trim(), "");
 
     const parentParentElem = elem.parentNode;
 
@@ -370,6 +370,7 @@ class HtmlBindJs {
     } else {
       const dataBindPath = dataBind.substr(key.length + 1);
       val = this.getProp(data[key], dataBindPath, "");
+      // val = _.get(data[key], dataBindPath);
     }
     return val;
   }
