@@ -101,6 +101,24 @@ myData.isDisplayTitle = function () {
 };
 ```
 
+#### custom - Bind to a function
+
+The _function_ exposes the DOM Element.
+The _function_ has to be in the scope of the data object.
+
+The function allows you to manipulate the element. 
+The data is provided in the current scope (use _this_)
+
+```html
+<label dk-bind="custom:my-object>isDisplayName"></label>
+```
+
+```js
+myData.isDisplayName = function (el) {
+  el.innerText = `${this.firstName} ${this.lastName} `;
+};
+```
+
 ## Style Options
 If you include the _html-bind.css_ file you can have the following effects:
 

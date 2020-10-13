@@ -28,7 +28,7 @@ class HtmlBindJs {
       DATA_AS: "each-as",
       IF: "if",
     };
-    this.noDataLoadedClassName = "dk-no-data-loaded"
+    this.noDataLoadedClassName = "dk-no-data-loaded";
 
     this.directives = {
       text: { fn: this.updateText },
@@ -100,8 +100,10 @@ class HtmlBindJs {
     const bindsLength = binds.length;
     for (let bindIndex = 0; bindIndex < bindsLength; bindIndex++) {
       const bind = binds[bindIndex];
-      if (!bind) continue;
+      if (!bind || bind === "undefined") continue;
       const bindItems = bind.split(this.attribBindDirectiveSeparator);
+      if (bindItems.length <= 1) continue;
+
       const bindDirective = bindItems[0].trim();
       const bindDirectiveDetails = bindItems[1].trim();
       if (bindDirective && this.directives[bindDirective]) {
@@ -192,7 +194,7 @@ class HtmlBindJs {
     // Get inside the template:
     const elemContent = elem.content.firstElementChild;
 
-    // Remove Temporarilly the Template Node:
+    // Remove Temporarily the Template Node:
     parentParentElem.removeChild(elem);
 
     const processId = Math.random() * 4;
@@ -430,9 +432,7 @@ class HtmlBindJs {
    * @returns {*} value if exists else undefined
    */
   getProp(object, path, defaultVal) {
-    const PATH = Array.isArray(path)
-      ? path
-      : path.split(".").filter((i) => i.length);
+    const PATH = Array.isArray(path) ? path : path.split(".").filter((i) => i.length);
     if (!PATH.length) {
       return object === undefined ? defaultVal : object;
     }

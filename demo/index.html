@@ -45,6 +45,11 @@
       </template>
     </div>
 
+    <div>
+      <label>Custom:</label>
+      <span dk-bind="custom:my-object>customFullName">default data</span>
+    </div>
+
     <code dk-bind="text:my-object"></code>
   </div>
   <script type="module">
@@ -52,6 +57,8 @@
     const myData = {
       title: "My Title",
       date: "1/09/2020",
+      firstName: "Pablo",
+      lastName: "Picasso",
       description: "Some description for my data",
       items: [
         { name: "Item One" },
@@ -62,6 +69,10 @@
 
     myData.isDisplayTitle = function () {
       return this.title === "My Title Updated";
+    };
+
+    myData.customFullName = function (el) {
+      el.innerText = `${this.firstName} ${this.lastName} `;
     };
 
     // window.htmlBindJs.attributePrefix = "hb";
